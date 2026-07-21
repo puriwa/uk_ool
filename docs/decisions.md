@@ -42,11 +42,12 @@
 - 루트 `index.html`의 로그인 화면은 `의뢰자`와 `변호사`를 명확히 구분한다. 의뢰자는 사건 정리·자료 보관·상담 요청, 변호사는 자격 검증 후 상담 요청과 공유 자료를 열람하는 역할로 안내한다.
 - P0 테스트를 위한 개발자 UI는 일반 로그인 화면에 링크를 표시하지 않고 `index.html#dev-console`로만 연다. 이는 보안 기능이 아닌 목업 진입점이며, 실제 운영에서는 서버 측 역할 기반 권한 검증과 감사 로그를 적용해야 한다.
 
-### 2026-07-21 — LLM 서버 호출 및 Cloudflare 배포 준비
+### 2026-07-21 — LLM 서버 호출 및 Cloudflare Workers 배포 준비
 
-- LLM API 키는 프론트엔드에 두지 않고 Cloudflare Pages Functions의 `POST /api/ai-draft`에서만 사용한다. Pages의 Secret으로 `LLM_API_KEY`를, 일반 환경 변수로 `LLM_API_URL`과 `LLM_MODEL`을 설정한다.
+- Cloudflare의 현재 Git 연결 화면은 Worker Builds 기반이므로, Vite 정적 자산과 LLM API를 `apps/web/src/worker.ts` 및 `wrangler.jsonc`의 Worker 정적 자산 구성으로 배포한다. Worker 이름은 Cloudflare 프로젝트명과 같은 `uk_ool`로 둔다.
+- LLM API 키는 프론트엔드에 두지 않고 Worker의 `POST /api/ai-draft`에서만 사용한다. Worker Secret으로 `LLM_API_KEY`를, 일반 환경 변수로 `LLM_API_URL`과 `LLM_MODEL`을 설정한다.
 - 이 API는 OpenAI 호환 Chat Completions 형식으로 요청하고, 사실·추가 확인사항·변호사 질문으로 제한된 JSON만 반환한다. 과실비율, 승소 가능성, 합의금, 형량의 판단·예측·보장을 금지한다.
-- Cloudflare Pages 배포는 `apps/web`을 루트로 하여 `npm run build`와 `dist`를 사용한다. `functions/` 디렉터리는 Pages Functions로 함께 배포한다.
+- Cloudflare Workers Git 배포는 `apps/web`을 루트로 하여 `npm run build` 후 `npx wrangler deploy`를 실행한다. `wrangler.jsonc`가 `dist` 정적 자산과 API 경로를 함께 배포한다.
 - 인증 전 공개 API는 비용·남용 위험이 있으므로 현재 엔드포인트는 기능 연결용 최소 구현으로만 둔다. 실제 사용자 데이터 처리 전에는 인증, 호출 한도, 봇 차단, 감사·삭제 정책을 추가한다.
 
 ## 미결정 사항
