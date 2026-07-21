@@ -9,9 +9,9 @@ P0의 기술 기준은 `docs/decisions.md`에 확정되어 있다.
 - Tailwind CSS와 프로젝트 내부 UI 컴포넌트
 - Cloudflare Workers 정적 자산 배포 + Worker 서버 API
 
-인증·파일 업로드는 P0에서 실제 연동하지 않는다. AI 사건 정리는 Cloudflare Worker의 `POST /api/ai-draft`로 연결할 수 있는 최소 경로를 마련했다. 브라우저는 API 키를 받지 않으며, 키는 Cloudflare Secret 또는 로컬 `.dev.vars`에서만 읽는다.
+P1 v2는 Supabase Auth 설정 유무에 따라 관리형 OAuth 또는 더미 로그인으로 동작한다. 개발 서버의 `POST /api/codex-draft`는 저장된 Codex CLI 로그인을 사용해 실제 구조화 사건정리를 반환한다. Cloudflare Worker의 `POST /api/ai-draft`는 운영 API 연결을 위한 별도 최소 경로다.
 
-첫 구현 범위(P0-A)는 홈, 사고 입력 마법사, 무료 체크리스트 결과, 로그인 유도까지다. P0-B에서는 사건 대시보드, AI 리포트, 변호사·관리자 화면을 정적 목업으로 추가한다.
+현재 화면 범위는 홈, 6개 상황별 3분 가이드, 간단 확인, 무료 AI 사건정리, 로그인, 내 사건, 변호사 목록·상세, 변호사 화면, 관리자 통계다.
 
 ## 실행
 
@@ -19,6 +19,10 @@ P0의 기술 기준은 `docs/decisions.md`에 확정되어 있다.
 npm install
 npm run dev
 ```
+
+`npm run dev`에서는 Vite 로컬 미들웨어가 `codex exec`를 호출한다. Codex CLI 로그인이 필요하며 기본 모델은 `gpt-5.6-luna`다. `.env`의 `UKOOL_CODEX_MODEL`로 바꿀 수 있다.
+
+관리형 로그인은 `.env.example`을 참고해 `VITE_SUPABASE_URL`과 `VITE_SUPABASE_ANON_KEY`를 설정한다. 키가 없으면 색상·이모티콘이 있는 더미 로그인이 자동으로 사용된다.
 
 프로덕션 빌드는 `npm run build`로 확인한다.
 
@@ -33,14 +37,16 @@ npm run dev
 
 실제 운영 전에는 로그인 기반 호출 제한, 사용자별 사용량 한도, 봇·비정상 요청 차단, 요청 감사 로그와 삭제 정책을 추가해야 한다. URL을 숨기거나 프론트엔드만으로 API를 보호해서는 안 된다.
 
-## 구현된 화면
+## 구현된 P1 v2 화면
 
-- `/`: 상황 선택 홈
-- `/guide/insurance-dispute`: 보험사 과실비율 이견 입력 마법사
-- `/guide/insurance-dispute/checklist`: 무료 초기 체크리스트와 로그인 유도
-- `/login`: 사건 저장을 위한 로그인 유도 목업
-- `/app`, `/app/report`: 사건 대시보드와 AI 사건 리포트 목업
-- `/lawyers`, `/lawyers/:name`: 변호사 목록·프로필 목업
-- `/lawyer/dashboard`, `/admin/dashboard`: 변호사·운영 관리자 골격
+- `/`: 분리된 가이드·상담 진입 홈
+- `/guide/:topic`: 상황별 설명 3개와 체크리스트
+- `/consult`, `/consult/quick`: 상담 방식 비교와 규칙 기반 간단 확인
+- `/consult/free`: 로그인 후 로컬 Codex AI 사건정리
+- `/login`, `/auth/callback`: Supabase OAuth 또는 더미 로그인
+- `/app`: 로그인 후 최근 AI 결과
+- `/lawyers`, `/lawyers/:slug`: 엘파인드 공개 출처형 변호사 목록·상세
+- `/lawyer/dashboard`: 변호사 역할 목업
+- `/admin/dashboard`: 기간별 퍼널·AI 품질·운영 통계
 
-입력 데이터는 P0에서 서버로 전송하거나 영구 저장하지 않는다. 로그인 폼, 파일·AI·상담 예약은 다음 단계 연동을 위한 화면 목업이다.
+Codex 입력은 로컬 개발 프로세스로 전달되며 사건 결과는 브라우저에만 목업 저장한다. Supabase OAuth를 제외한 사건 서버 저장, 상담 예약·결제, 운영 권한 검증은 다음 단계다.

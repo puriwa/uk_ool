@@ -27,12 +27,13 @@
 - [제품 기획](docs/product-plan.md)
 - [결정 기록](docs/decisions.md)
 - [P1 클로즈드 베타 기획](docs/p1-plan.md)
+- [P1 v2 상세 기획·기술 명세](docs/p1-v2-spec.md)
 - [변호사 프로필 화면 참고자료](docs/references/lfind-lawyer-profile-shin-young-jun/README.md)
 - [웹 애플리케이션 자리표시자](apps/web/README.md)
 
 ## 현재 구현
 
-`apps/web`에 P0 프론트엔드 검증 앱이 구현되어 있다. 홈에서 상황을 선택하고, 보험사 과실비율 이견 가이드를 거쳐 무료 체크리스트와 로그인 유도까지 이어진다. AI 리포트는 Cloudflare Pages Functions를 통해 LLM에 사실 정리 초안을 요청할 수 있으며, 키는 서버 환경변수에만 둔다. 인증·파일 업로드·사건 저장은 아직 목업이다.
+`apps/web`에 P1 v2 프론트엔드와 로컬 기능 검증 흐름이 구현되어 있다. 3분 가이드, 규칙 기반 간단 확인, 로그인 후 무료 AI 사건정리, 내 사건, 출처형 변호사 프로필, 관리자 통계 화면을 제공한다. 개발 서버에서는 로컬 `codex exec`가 구조화 사건 정리를 반환하며, Supabase Auth 설정이 없으면 색상·이모티콘이 있는 더미 로그인을 사용한다. 실제 사건 서버 저장과 운영 권한 검증은 아직 연결 전이다.
 
 ```bash
 cd apps/web

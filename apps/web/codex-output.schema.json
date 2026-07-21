@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "userFacts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 8
+    },
+    "evidenceFacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "statement": { "type": "string" },
+          "source": { "type": "string" }
+        },
+        "required": ["statement", "source"],
+        "additionalProperties": false
+      },
+      "maxItems": 8
+    },
+    "uncertainties": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 8
+    },
+    "generalInformation": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 6
+    },
+    "nextActions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "reason": { "type": "string" },
+          "urgency": { "type": "string", "enum": ["now", "soon", "later"] }
+        },
+        "required": ["title", "reason", "urgency"],
+        "additionalProperties": false
+      },
+      "maxItems": 6
+    },
+    "questionsForLawyer": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 6
+    },
+    "notice": { "type": "string" }
+  },
+  "required": [
+    "userFacts",
+    "evidenceFacts",
+    "uncertainties",
+    "generalInformation",
+    "nextActions",
+    "questionsForLawyer",
+    "notice"
+  ],
+  "additionalProperties": false
+}
