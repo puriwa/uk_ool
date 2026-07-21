@@ -28,7 +28,7 @@ npm run dev
 
 1. PowerShell에서 `Copy-Item .dev.vars.example .dev.vars`로 로컬 비밀값 파일을 만들고 실제 LLM 값으로 바꾼다. `.dev.vars`는 커밋하지 않는다.
 2. `npm run build` 후 `npx.cmd wrangler dev`로 프론트와 Worker API를 함께 실행한다. Vite의 `npm run dev`는 정적 화면만 확인할 때 사용한다.
-3. Cloudflare Workers Git 연동에서 루트 디렉터리를 `apps/web`, 빌드 명령을 `npm run build`, 배포 명령을 `npx wrangler deploy`로 설정한다. Worker 이름은 `uk_ool`로 설정된 `wrangler.jsonc`의 `name`과 같아야 한다.
+3. Cloudflare Workers Git 연동에서 루트 디렉터리를 지정할 수 있으면 `apps/web`, 빌드 명령을 `npm run build`, 배포 명령을 `npx wrangler deploy`로 설정한다. 초기 연결 화면처럼 루트 디렉터리 입력란이 없으면 빌드 명령은 `cd apps/web && npm ci && npm run build`, 배포 명령은 `cd apps/web && npx wrangler deploy`로 설정한다. Worker 이름은 `ukool`로 설정된 `wrangler.jsonc`의 `name`과 같아야 한다.
 4. Worker의 **Settings → Variables and Secrets**에서 Production과 Preview 각각에 `LLM_API_URL`, `LLM_API_KEY`(Encrypt), `LLM_MODEL`을 설정한 뒤 재배포한다.
 
 실제 운영 전에는 로그인 기반 호출 제한, 사용자별 사용량 한도, 봇·비정상 요청 차단, 요청 감사 로그와 삭제 정책을 추가해야 한다. URL을 숨기거나 프론트엔드만으로 API를 보호해서는 안 된다.

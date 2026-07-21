@@ -26,6 +26,7 @@
 
 - [제품 기획](docs/product-plan.md)
 - [결정 기록](docs/decisions.md)
+- [P1 클로즈드 베타 기획](docs/p1-plan.md)
 - [변호사 프로필 화면 참고자료](docs/references/lfind-lawyer-profile-shin-young-jun/README.md)
 - [웹 애플리케이션 자리표시자](apps/web/README.md)
 
