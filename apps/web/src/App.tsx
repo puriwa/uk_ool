@@ -1,0 +1,213 @@
+import { FormEvent, ReactNode, useMemo, useState } from 'react'
+import { Link, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+
+type IconName = 'arrow' | 'arrowLeft' | 'briefcase' | 'check' | 'chevron' | 'clock' | 'document' | 'home' | 'info' | 'lock' | 'menu' | 'play' | 'search' | 'shield' | 'spark' | 'user' | 'x'
+
+function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+  const paths: Record<IconName, ReactNode> = {
+    arrow: <><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></>,
+    arrowLeft: <><path d="M20 12H5" /><path d="m11 18-6-6 6-6" /></>,
+    briefcase: <><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" /></>,
+    check: <path d="m5 12 4 4L19 6" />,
+    chevron: <path d="m6 9 6 6 6-6" />,
+    clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+    document: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h5" /></>,
+    home: <><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" /><path d="M9 21v-7h6v7" /></>,
+    info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>,
+    lock: <><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></>,
+    menu: <><path d="M4 6h16M4 12h16M4 18h16" /></>,
+    play: <path d="m9 6 9 6-9 6z" />,
+    search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
+    shield: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></>,
+    spark: <><path d="m12 3-1.4 5.6L5 10l5.6 1.4L12 17l1.4-5.6L19 10l-5.6-1.4z" /><path d="m19 16-.6 2.4L16 19l2.4.6L19 22l.6-2.4L22 19l-2.4-.6z" /></>,
+    user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
+    x: <><path d="M6 6l12 12M18 6 6 18" /></>,
+  }
+  return <svg aria-hidden="true" fill="none" height={size} viewBox="0 0 24 24" width={size} xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8">{paths[name]}</svg>
+}
+
+function Header() {
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const isApp = location.pathname.startsWith('/app') || location.pathname.startsWith('/lawyer') || location.pathname.startsWith('/admin')
+  return <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/95 backdrop-blur">
+    <div className="container-page flex h-[72px] items-center justify-between">
+      <Link className="focus-ring flex items-center gap-2" to="/" onClick={() => setOpen(false)}>
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-navy text-white"><Icon name="shield" size={20} /></span>
+        <span className="text-[17px] font-extrabold tracking-[-0.04em] text-navy">억울함해결사</span>
+      </Link>
+      <button aria-expanded={open} aria-label="메뉴 열기" className="focus-ring rounded-lg p-2 text-navy md:hidden" onClick={() => setOpen(!open)}><Icon name={open ? 'x' : 'menu'} /></button>
+      <nav aria-label="주요 메뉴" className={`${open ? 'absolute left-0 right-0 top-[72px] flex border-b border-line bg-paper px-5 py-4 shadow-soft' : 'hidden'} flex-col gap-1 md:static md:flex md:flex-row md:items-center md:border-0 md:bg-transparent md:p-0 md:shadow-none`}>
+        <NavLink className={({ isActive }) => `focus-ring rounded-lg px-4 py-2 text-sm font-semibold ${isActive && !isApp ? 'text-teal' : 'text-muted hover:text-navy'}`} to="/">무료 가이드</NavLink>
+        <NavLink className={({ isActive }) => `focus-ring rounded-lg px-4 py-2 text-sm font-semibold ${isActive || isApp ? 'text-teal' : 'text-muted hover:text-navy'}`} to="/lawyers">변호사 찾기</NavLink>
+        <span className="mx-2 hidden h-5 w-px bg-line md:block" />
+        <Link className="focus-ring inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-bold text-navy hover:bg-white" to="/app">내 사건</Link>
+        <Link className="button-primary ml-0 mt-2 min-h-10 px-4 text-sm md:ml-2 md:mt-0" to="/login">로그인</Link>
+      </nav>
+    </div>
+  </header>
+}
+
+function Footer() {
+  return <footer className="mt-20 border-t border-line bg-white">
+    <div className="container-page flex flex-col gap-5 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+      <div><p className="font-bold text-navy">억울함해결사</p><p className="mt-1">사실을 정리하고, 다음 행동을 놓치지 않게</p></div>
+      <p className="max-w-md text-xs leading-5">이 서비스는 일반적인 정보와 준비 도구를 제공합니다. 개별 사건에 대한 법률자문이나 결과를 보장하지 않습니다.</p>
+    </div>
+  </footer>
+}
+
+function Page({ children, noFooter = false }: { children: ReactNode; noFooter?: boolean }) {
+  return <div className="min-h-screen bg-paper text-ink"><Header />{children}{!noFooter && <Footer />}</div>
+}
+
+const situations = [
+  { icon: 'car', title: '방금 사고가 났어요', desc: '사고 직후 놓치기 쉬운 일을 확인해요' },
+  { icon: 'scale', title: '보험사 과실비율이 억울해요', desc: '과실비율 이견을 정리하고 다음 단계를 알아봐요', featured: true },
+  { icon: 'message', title: '상대방이 접수를 거부해요', desc: '대인·대물 접수 전 확인할 내용을 살펴봐요' },
+  { icon: 'document', title: '분심위 결과에 동의할 수 없어요', desc: '결정 이후 준비할 자료와 질문을 정리해요' },
+  { icon: 'user', title: '변호사 상담을 준비하고 싶어요', desc: '상담 전에 사건을 한눈에 정리해요' },
+]
+
+function SimpleSituationIcon({ type }: { type: string }) {
+  const symbol = type === 'document' ? 'document' : type === 'user' ? 'user' : type === 'scale' ? 'scale' : 'car'
+  if (symbol === 'car') return <span className="text-[26px]" aria-hidden="true">🚙</span>
+  if (symbol === 'scale') return <span className="text-[26px]" aria-hidden="true">⚖️</span>
+  return <Icon name={symbol as IconName} size={25} />
+}
+
+function Home() {
+  return <Page>
+    <main>
+      <section className="container-page relative grid gap-10 pb-20 pt-14 md:grid-cols-[1.08fr_.92fr] md:items-center md:pb-28 md:pt-20">
+        <div className="relative z-10">
+          <p className="eyebrow">교통사고 사건 준비 플랫폼</p>
+          <h1 className="mt-5 max-w-xl text-[2.8rem] font-extrabold leading-[1.16] tracking-[-0.07em] text-navy sm:text-6xl">내 사건을<br /><span className="text-teal">차근차근</span> 정리해요</h1>
+          <p className="mt-6 max-w-lg text-base leading-7 text-muted sm:text-lg">사고 사실과 증거를 정리하고,<br className="hidden sm:block" /> 지금 해야 할 일을 한눈에 확인할 수 있어요.</p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link className="button-primary gap-3" to="/guide/insurance-dispute">무료로 내 상황 확인하기 <Icon name="arrow" size={18} /></Link>
+            <Link className="button-secondary gap-2" to="/guide/insurance-dispute"><Icon name="play" size={17} /> 3분 가이드 시작</Link>
+          </div>
+          <p className="mt-5 flex items-center gap-2 text-xs text-muted"><Icon name="lock" size={14} /> 로그인 없이 바로 시작할 수 있어요</p>
+        </div>
+        <div className="relative mx-auto w-full max-w-md">
+          <div className="absolute -right-3 -top-4 h-28 w-28 rounded-full bg-[#d6f0ed] blur-[1px] sm:-right-8 sm:-top-8 sm:h-40 sm:w-40" />
+          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-[#fff0d7]" />
+          <div className="relative rounded-[2rem] bg-navy p-5 shadow-[0_24px_60px_rgba(21,63,88,.2)] sm:p-7">
+            <div className="flex items-center justify-between text-white"><span className="text-sm font-semibold">내 사건 준비도</span><span className="rounded-full bg-white/10 px-3 py-1 text-xs">현재 상태</span></div>
+            <div className="mt-7 flex items-center gap-5"><div className="relative flex h-28 w-28 items-center justify-center rounded-full border-[10px] border-white/10 border-t-[#70d6ca] border-r-[#70d6ca]"><span className="text-3xl font-extrabold text-white">62<span className="text-base">%</span></span></div><div><p className="text-lg font-bold text-white">기초 자료를<br />잘 모으고 있어요</p><p className="mt-2 text-xs leading-5 text-white/60">결과가 아닌<br />준비 상태를 보여드려요</p></div></div>
+            <div className="mt-7 space-y-3 rounded-2xl bg-white/10 p-4"><div className="flex items-center justify-between text-xs text-white/70"><span>다음 할 일</span><span>2개 남음</span></div><div className="flex items-center gap-3 text-sm font-semibold text-white"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#70d6ca] text-navy"><Icon name="check" size={14} /></span> 보험사 통화 내용 기록하기</div><div className="flex items-center gap-3 text-sm font-semibold text-white/80"><span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40"><Icon name="clock" size={13} /></span> 블랙박스 원본 보관하기</div></div>
+          </div>
+        </div>
+      </section>
+      <section className="border-y border-line bg-white py-16 sm:py-20">
+        <div className="container-page"><div className="mb-9 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p className="eyebrow">어디서부터 시작할까요?</p><h2 className="mt-3 text-2xl font-extrabold tracking-[-0.05em] text-navy sm:text-3xl">지금 내 상황을 골라주세요</h2></div><p className="text-sm text-muted">가장 가까운 상황부터 안내해 드려요.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{situations.map((item) => <Link key={item.title} className={`focus-ring group rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:shadow-soft ${item.featured ? 'border-teal bg-[#effaf8]' : 'border-line bg-white'}`} to={item.featured ? '/guide/insurance-dispute' : '/guide/insurance-dispute'}><div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${item.featured ? 'bg-white text-teal' : 'bg-paper text-navy'}`}><SimpleSituationIcon type={item.icon} /></div><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-navy">{item.title}</h3><p className="mt-2 text-sm leading-5 text-muted">{item.desc}</p></div><Icon name="arrow" size={18} /></div></Link>)}</div></div>
+      </section>
+      <section className="container-page py-16 sm:py-20"><div className="grid gap-4 md:grid-cols-3"><Feature icon="document" title="사실과 추정을 구분해요" text="내가 말한 사실, 자료에서 확인된 내용, 아직 확인이 필요한 추정을 따로 보여드려요." /><Feature icon="shield" title="개인정보를 조심히 다뤄요" text="로그인 전에는 사건을 저장하지 않아요. 공유 전에도 내가 직접 선택할 수 있어요." /><Feature icon="spark" title="변호사 상담을 준비해요" text="상담 전에 사건 흐름과 궁금한 점을 정리해 더 알찬 대화를 도와드려요." /></div></section>
+    </main>
+  </Page>
+}
+
+function Feature({ icon, title, text }: { icon: IconName; title: string; text: string }) { return <div className="rounded-2xl border border-line bg-white p-6"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#effaf8] text-teal"><Icon name={icon} size={20} /></span><h3 className="mt-5 font-bold text-navy">{title}</h3><p className="mt-2 text-sm leading-6 text-muted">{text}</p></div> }
+
+function StepHeader({ current, title }: { current: number; title: string }) {
+  return <div className="border-b border-line bg-white"><div className="container-page py-7 sm:py-9"><div className="flex items-center justify-between"><Link className="focus-ring inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-navy" to="/"><Icon name="arrowLeft" size={17} /> 처음으로</Link><span className="text-xs font-semibold text-muted">무료 가이드</span></div><div className="mt-8 flex gap-2" aria-label={`전체 3단계 중 ${current}단계`}><span className="sr-only">{current}단계 / 3단계</span>{[1, 2, 3].map((step) => <span aria-hidden="true" className={`h-1.5 flex-1 rounded-full ${step <= current ? 'bg-teal' : 'bg-line'}`} key={step} />)}</div><p className="mt-5 text-sm font-bold text-teal">{current} / 3</p><h1 className="mt-2 text-2xl font-extrabold tracking-[-0.05em] text-navy sm:text-3xl">{title}</h1></div></div>
+}
+
+type WizardData = { timing: string; offered: string; story: string }
+function Wizard() {
+  const navigate = useNavigate()
+  const [step, setStep] = useState(1)
+  const [data, setData] = useState<WizardData>({ timing: '', offered: '', story: '' })
+  const options = ['최근 1개월 이내', '1~6개월 전', '6개월보다 오래 전']
+  const offers = ['보험사가 과실비율을 제시했어요', '아직 과실비율을 듣지 못했어요', '제시받은 비율에 이의를 전달했어요']
+  const canNext = step === 1 ? Boolean(data.timing) : Boolean(data.offered)
+  const handleSubmit = (event: FormEvent) => { event.preventDefault(); if (step < 3) setStep(step + 1); else navigate('/guide/insurance-dispute/checklist', { state: data }) }
+  return <Page noFooter><main className="min-h-[calc(100vh-72px)] bg-paper"><StepHeader current={step} title={step === 1 ? '사고가 언제 일어났나요?' : step === 2 ? '보험사와 어떤 이야기를 나눴나요?' : '사건을 조금 더 알려주세요'} /><div className="container-page max-w-3xl py-10 sm:py-14"><form className="card p-6 sm:p-10" onSubmit={handleSubmit}>
+    {step === 1 && <><p className="text-base leading-7 text-muted">정확한 날짜를 몰라도 괜찮아요. 대략적인 시기를 선택해 주세요.</p><div className="mt-8 space-y-3">{options.map((option) => <Choice key={option} label={option} selected={data.timing === option} onClick={() => setData({ ...data, timing: option })} />)}</div></>}
+    {step === 2 && <><p className="text-base leading-7 text-muted">보험사와 주고받은 내용에 가장 가까운 것을 선택해 주세요.</p><div className="mt-8 space-y-3">{offers.map((option) => <Choice key={option} label={option} selected={data.offered === option} onClick={() => setData({ ...data, offered: option })} />)}</div></>}
+    {step === 3 && <><p className="text-base leading-7 text-muted">기억나는 내용을 자유롭게 적어주세요. 이 내용은 로그인 전 저장되지 않아요.</p><label className="mt-8 block text-sm font-bold text-navy" htmlFor="story">사고와 보험사 이야기를 간단히 적어주세요 <span className="font-normal text-muted">(선택)</span></label><textarea className="focus-ring mt-3 min-h-44 w-full resize-y rounded-xl border border-line p-4 text-sm leading-6 outline-none placeholder:text-[#9aa7b1] focus:border-teal" id="story" onChange={(event) => setData({ ...data, story: event.target.value })} placeholder="예: 교차로에서 직진 중 옆 차선 차량과 부딪혔고, 보험사는 제 과실이 70%라고 했어요." value={data.story} /><p className="mt-3 flex gap-2 text-xs leading-5 text-muted"><Icon name="info" size={15} /> 이름, 차량번호 등 개인정보는 적지 않아도 됩니다.</p></>}
+    <div className="mt-10 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:justify-between">{step > 1 ? <button className="button-secondary" type="button" onClick={() => setStep(step - 1)}>이전</button> : <span />}{step === 3 ? <button className="button-primary gap-2" type="submit">내 체크리스트 보기 <Icon name="arrow" size={17} /></button> : <button className="button-primary gap-2" disabled={!canNext} type="submit">다음 <Icon name="arrow" size={17} /></button>}</div>
+  </form><p className="mx-auto mt-6 flex max-w-xl items-start gap-2 text-xs leading-5 text-muted"><Icon name="shield" size={15} /> 현재 입력한 내용은 이 브라우저에서만 잠시 사용되며, 결과를 저장하려면 로그인해야 합니다.</p></div></main></Page>
+}
+
+function Choice({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) { return <button aria-pressed={selected} className={`focus-ring flex min-h-14 w-full items-center justify-between rounded-xl border px-5 text-left font-semibold transition ${selected ? 'border-teal bg-[#effaf8] text-navy ring-2 ring-teal/10' : 'border-line bg-white text-navy hover:border-teal'}`} onClick={onClick} type="button"><span>{label}</span><span className={`flex h-6 w-6 items-center justify-center rounded-full border ${selected ? 'border-teal bg-teal text-white' : 'border-line text-transparent'}`}><Icon name="check" size={14} /></span></button> }
+
+const baseChecklist = [
+  { title: '블랙박스 원본 영상 보관하기', desc: '편집·변환하지 않은 원본을 별도 보관하세요.', icon: 'play' as IconName, done: true },
+  { title: '사고 현장 사진과 위치 기록하기', desc: '차량 위치, 도로 구조, 표지판이 보이게 남겨요.', icon: 'document' as IconName, done: false },
+  { title: '보험사와 통화한 내용 적어두기', desc: '통화 날짜, 담당자, 제시받은 과실비율을 기록해요.', icon: 'clock' as IconName, done: false },
+  { title: '내가 궁금한 점 모아두기', desc: '상담할 때 놓치지 않도록 질문을 적어두세요.', icon: 'spark' as IconName, done: false },
+]
+function Checklist() {
+  const [items, setItems] = useState(baseChecklist)
+  const completed = items.filter((item) => item.done).length
+  return <Page><main className="bg-paper pb-20"><section className="border-b border-line bg-white"><div className="container-page py-12 sm:py-16"><p className="eyebrow">무료 초기 체크리스트</p><h1 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight tracking-[-0.06em] text-navy sm:text-5xl">지금은 <span className="text-teal">자료를 모으는 단계</span>예요</h1><p className="mt-5 max-w-xl text-base leading-7 text-muted">결과를 예측하는 대신, 상담과 다음 행동에 필요한 준비물을 차근차근 확인해 보세요.</p><div className="mt-8 flex flex-wrap items-center gap-4"><div className="h-2 w-48 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-teal transition-all" style={{ width: `${(completed / items.length) * 100}%` }} /></div><span className="text-sm font-bold text-navy">{completed}/{items.length} 완료</span></div></div></section><div className="container-page grid gap-8 py-10 lg:grid-cols-[1fr_320px] lg:py-14"><section><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-extrabold text-navy">먼저 확인할 것</h2><span className="rounded-full bg-[#e8f6f4] px-3 py-1 text-xs font-bold text-teal">무료로 확인 중</span></div><div className="space-y-3">{items.map((item, index) => <button aria-pressed={item.done} className={`focus-ring flex w-full items-start gap-4 rounded-2xl border p-5 text-left transition ${item.done ? 'border-teal/40 bg-[#f2fbfa]' : 'border-line bg-white hover:border-teal'}`} key={item.title} onClick={() => setItems(items.map((current, i) => i === index ? { ...current, done: !current.done } : current))}><span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.done ? 'bg-teal text-white' : 'bg-paper text-navy'}`}>{item.done ? <Icon name="check" size={20} /> : <Icon name={item.icon} size={19} />}</span><span className="flex-1"><span className={`block font-bold ${item.done ? 'text-teal' : 'text-navy'}`}>{item.title}</span><span className="mt-1 block text-sm leading-5 text-muted">{item.desc}</span></span><span className="mt-1 text-xs font-bold text-muted">{item.done ? '완료' : '확인'}</span></button>)}</div></section><aside className="space-y-4"><div className="rounded-2xl bg-navy p-6 text-white"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#86e1d8]"><Icon name="spark" /></span><h2 className="mt-5 text-lg font-bold">내 사건에 저장할까요?</h2><p className="mt-2 text-sm leading-6 text-white/70">체크리스트, 사건 메모, 앞으로 할 일을 로그인 후 한곳에 보관할 수 있어요.</p><Link className="focus-ring mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#86e1d8] px-4 text-sm font-bold text-navy hover:bg-white" to="/login">무료로 저장하기 <Icon name="arrow" size={16} /></Link></div><div className="rounded-2xl border border-[#f2dcb7] bg-cream p-5"><div className="flex items-start gap-3"><Icon name="info" size={18} /><div><h3 className="text-sm font-bold text-navy">잠깐, 이것만 기억하세요</h3><p className="mt-2 text-xs leading-5 text-muted">체크리스트는 일반적인 준비 안내예요. 구체적인 대응은 사건 자료를 검토한 변호사와 상담하세요.</p></div></div></div></aside></div></main></Page>
+}
+
+function Login() { return <Page><main className="container-page flex min-h-[calc(100vh-72px)] items-center justify-center py-12"><div className="w-full max-w-md"><div className="text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-navy text-white"><Icon name="shield" size={28} /></span><h1 className="mt-6 text-3xl font-extrabold tracking-[-0.06em] text-navy">내 사건을 저장해요</h1><p className="mt-3 text-sm leading-6 text-muted">체크리스트와 메모를 안전하게 보관하고<br />다음 행동을 이어서 확인할 수 있어요.</p></div><form className="card mt-8 p-6 sm:p-8" onSubmit={(event) => { event.preventDefault(); window.location.href = '/app' }}><label className="block text-sm font-bold text-navy" htmlFor="email">이메일</label><input className="focus-ring mt-2 h-12 w-full rounded-xl border border-line px-4 text-sm outline-none focus:border-teal" id="email" placeholder="example@email.com" type="email" /><label className="mt-5 block text-sm font-bold text-navy" htmlFor="password">비밀번호</label><input className="focus-ring mt-2 h-12 w-full rounded-xl border border-line px-4 text-sm outline-none focus:border-teal" id="password" placeholder="비밀번호를 입력해 주세요" type="password" /><button className="button-primary mt-6 w-full" type="submit">이메일로 시작하기</button><div className="my-6 flex items-center gap-3 text-xs text-muted"><span className="h-px flex-1 bg-line" />또는<span className="h-px flex-1 bg-line" /></div><button className="button-secondary w-full gap-2" type="button"><span className="font-extrabold text-[#4285f4]">G</span> Google로 계속하기</button></form><p className="mt-5 flex items-center justify-center gap-2 text-center text-xs text-muted"><Icon name="lock" size={14} /> P0 목업 화면이며 실제 계정이 생성되지는 않아요.</p></div></main></Page> }
+
+function AppShell({ children }: { children: ReactNode }) { return <Page><main className="bg-paper pb-20"><div className="container-page py-10 sm:py-14">{children}</div></main></Page> }
+function Dashboard() { return <AppShell><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="eyebrow">내 사건</p><h1 className="mt-3 text-3xl font-extrabold tracking-[-0.06em] text-navy">안녕하세요, 민서님</h1><p className="mt-2 text-sm text-muted">오늘도 사건을 한 걸음씩 정리해 볼까요?</p></div><button className="button-primary gap-2 self-start"><Icon name="briefcase" size={17} /> 새 사건 만들기</button></div><div className="mt-9 grid gap-5 lg:grid-cols-[1fr_300px]"><section className="card p-6 sm:p-8"><div className="flex items-start justify-between"><div><span className="rounded-full bg-[#e8f6f4] px-3 py-1 text-xs font-bold text-teal">진행 중</span><h2 className="mt-4 text-xl font-extrabold text-navy">보험사 과실비율 이견</h2><p className="mt-2 text-sm text-muted">최근 업데이트: 오늘 오전 10:42</p></div><button aria-label="사건 더보기" className="focus-ring rounded-lg p-2 text-muted"><Icon name="chevron" /></button></div><div className="mt-8 grid gap-4 sm:grid-cols-3"><Stat label="준비도" value="62%" /><Stat label="확인한 자료" value="3개" /><Stat label="다음 할 일" value="2개" /></div><div className="mt-8 border-t border-line pt-6"><h3 className="font-bold text-navy">다음 할 일</h3><div className="mt-4 space-y-3"><Task done title="사고 기본정보 입력" /><Task title="보험사 통화 내용 기록하기" due="오늘" /><Task title="변호사에게 물어볼 질문 정리" due="이번 주" /></div></div><div className="mt-7 flex flex-col gap-3 sm:flex-row"><Link className="button-primary flex-1 gap-2" to="/app/report"><Icon name="spark" size={17} /> AI 사건 리포트 보기</Link><Link className="button-secondary flex-1 gap-2" to="/lawyers"><Icon name="search" size={17} /> 변호사 찾아보기</Link></div></section><aside className="space-y-5"><div className="rounded-2xl bg-navy p-6 text-white"><p className="text-xs font-bold tracking-widest text-[#86e1d8]">사건 준비도</p><div className="mt-5 flex items-end gap-2"><span className="text-5xl font-extrabold">62</span><span className="mb-2 text-lg">%</span></div><p className="mt-2 text-sm leading-5 text-white/70">결과가 아닌 자료의 준비 상태예요.</p><div className="mt-5 h-2 rounded-full bg-white/10"><div className="h-full w-[62%] rounded-full bg-[#86e1d8]" /></div><p className="mt-4 text-xs text-white/60">보험자료를 추가하면 준비도가 올라가요.</p></div><div className="card p-5"><h3 className="font-bold text-navy">최근 활동</h3><p className="mt-4 text-sm text-muted">사건을 만들었어요</p><p className="mt-1 text-xs text-muted">오늘 오전 10:42</p></div></aside></div></AppShell> }
+function Stat({ label, value }: { label: string; value: string }) { return <div className="rounded-xl bg-paper p-4"><p className="text-xs text-muted">{label}</p><p className="mt-2 text-xl font-extrabold text-navy">{value}</p></div> }
+function Task({ title, due, done = false }: { title: string; due?: string; done?: boolean }) { return <div className="flex items-center gap-3"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${done ? 'border-teal bg-teal text-white' : 'border-line text-transparent'}`}><Icon name="check" size={14} /></span><span className={`flex-1 text-sm ${done ? 'text-muted line-through' : 'font-semibold text-navy'}`}>{title}</span>{due && <span className="text-xs text-muted">{due}</span>}</div> }
+
+type AiDraft = { userFacts: string[]; needsConfirmation: string[]; questionsForLawyer: string[]; notice: string }
+
+function AiDraftPanel() {
+  const [incidentText, setIncidentText] = useState('')
+  const [draft, setDraft] = useState<AiDraft | null>(null)
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const createDraft = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError('')
+    setDraft(null)
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/ai-draft', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ incidentText }) })
+      const data = await response.json() as { draft?: AiDraft; error?: string }
+      if (!response.ok || !data.draft) throw new Error(data.error || '초안을 만들지 못했습니다.')
+      setDraft(data.draft)
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : '초안을 만들지 못했습니다.')
+    } finally { setIsLoading(false) }
+  }
+  return <section className="card mt-6 p-5 sm:p-6">
+    <h2 className="font-bold text-navy">내 입력으로 사실 정리 초안 만들기</h2>
+    <p className="mt-2 text-sm leading-6 text-muted">전송을 누를 때만 서버의 AI 초안 기능을 호출합니다. 이름·연락처·차량번호·사건번호는 가리고 입력해 주세요.</p>
+    <form className="mt-4" onSubmit={createDraft}>
+      <label className="sr-only" htmlFor="ai-incident-text">사건 내용</label>
+      <textarea className="focus-ring min-h-32 w-full rounded-xl border border-line p-4 text-sm leading-6 outline-none placeholder:text-[#9aa7b1] focus:border-teal" id="ai-incident-text" maxLength={6000} onChange={(event) => setIncidentText(event.target.value)} placeholder="사고 경위, 보험사와 주고받은 내용, 보유 자료를 사실 중심으로 적어 주세요." required value={incidentText} />
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span className="text-xs text-muted">{incidentText.length}/6000 · 입력 내용은 이 화면에서 저장하지 않습니다.</span><button className="button-primary min-h-11 px-4 text-sm" disabled={isLoading || !incidentText.trim()} type="submit">{isLoading ? '초안 만드는 중…' : '사실 정리 초안 만들기'}</button></div>
+    </form>
+    {error && <p className="mt-4 rounded-xl bg-[#fff7ed] p-3 text-sm text-[#9a4e1b]" role="alert">{error}</p>}
+    {draft && <div className="mt-5 grid gap-4 lg:grid-cols-3">
+      <DraftList title="내가 입력한 사실" items={draft.userFacts} tone="blue" />
+      <DraftList title="추가 확인이 필요한 내용" items={draft.needsConfirmation} tone="orange" />
+      <DraftList title="변호사에게 물어볼 질문" items={draft.questionsForLawyer} tone="purple" />
+      <p className="lg:col-span-3 text-xs leading-5 text-muted">{draft.notice}</p>
+    </div>}
+  </section>
+}
+
+function DraftList({ title, items, tone }: { title: string; items: string[]; tone: string }) {
+  const toneClass: Record<string, string> = { blue: 'bg-[#f1f6fb]', orange: 'bg-[#fff7ed]', purple: 'bg-[#f7f2fb]' }
+  return <div className={`rounded-xl p-4 ${toneClass[tone]}`}><h3 className="text-sm font-bold text-navy">{title}</h3><ul className="mt-3 space-y-2 text-sm leading-6 text-navy">{items.length ? items.map((item) => <li className="flex gap-2" key={item}><span aria-hidden="true">•</span><span>{item}</span></li>) : <li className="text-muted">정리된 항목이 없어요.</li>}</ul></div>
+}
+
+function Report() { return <AppShell><Link className="focus-ring inline-flex items-center gap-2 text-sm font-semibold text-muted" to="/app"><Icon name="arrowLeft" size={17} /> 내 사건으로</Link><div className="mt-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">AI 사건 리포트</p><h1 className="mt-3 text-3xl font-extrabold tracking-[-0.06em] text-navy">보험사 과실비율 이견</h1><p className="mt-2 text-sm text-muted">입력한 사실을 참고용 초안으로 정리해요.</p></div><button className="button-secondary gap-2 self-start"><Icon name="document" size={17} /> 리포트 저장</button></div><div className="mt-8 rounded-2xl border border-[#b9e5df] bg-[#effaf8] p-5 sm:p-6"><div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal text-white"><Icon name="spark" size={18} /></span><div><h2 className="font-bold text-navy">확정된 법률 판단이 아닌 참고용 초안이에요</h2><p className="mt-1 text-sm leading-6 text-muted">빠진 내용이 없는지 직접 확인하고, 구체적인 법률 자문과 대응 전략은 변호사에게 문의해 주세요.</p></div></div></div><AiDraftPanel /><div className="mt-6 grid gap-5 lg:grid-cols-2"><ReportCard label="목업 예시: 내가 직접 입력한 사실" tone="blue"><ul className="space-y-3 text-sm leading-6 text-navy"><li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />최근 1개월 이내 교차로에서 차량 간 접촉사고가 있었어요.</li><li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />보험사는 내 과실비율을 70%로 제시했어요.</li></ul></ReportCard><ReportCard label="목업 예시: 자료에서 확인된 내용" tone="green"><ul className="space-y-3 text-sm leading-6 text-navy"><li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal" />블랙박스 원본 영상 1개가 등록되어 있어요.</li><li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal" />사고 현장 사진 2장이 등록되어 있어요.</li></ul></ReportCard></div></AppShell> }
+function ReportCard({ label, tone, children }: { label: string; tone: string; children: ReactNode }) { const colors: Record<string, string> = { blue: 'bg-[#f1f6fb] text-navy', green: 'bg-[#effaf8] text-teal', orange: 'bg-[#fff7ed] text-[#b66830]', purple: 'bg-[#f7f2fb] text-[#79518f]' }; return <section className="card overflow-hidden"><div className={`border-b border-white/70 px-5 py-4 text-sm font-bold ${colors[tone]}`}>{label}</div><div className="p-5">{children}</div></section> }
+
+const lawyers = [{ name: '김서윤', office: '서윤 교통사고 법률사무소', region: '서울 · 경기', tags: ['교통사고', '손해배상'], intro: '사고 사실과 증거를 꼼꼼히 살펴 상담 방향을 함께 정리합니다.', fee: '상담 30분 10만원' }, { name: '박도현', office: '법률사무소 바른길', region: '서울 · 온라인', tags: ['보험분쟁', '교통사고'], intro: '보험사와의 과실비율 이견 및 분쟁 절차를 상담합니다.', fee: '상담 30분 8만원' }, { name: '이하늘', office: '하늘과 함께 법률사무소', region: '인천 · 경기', tags: ['교통사고', '민사소송'], intro: '사건 자료를 바탕으로 필요한 다음 행동을 명확히 안내합니다.', fee: '상담 30분 10만원' }]
+function Lawyers() { return <AppShell><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="eyebrow">객관적인 조건으로 찾기</p><h1 className="mt-3 text-3xl font-extrabold tracking-[-0.06em] text-navy sm:text-4xl">교통사고 변호사 찾기</h1><p className="mt-3 text-sm text-muted">사건 분석 결과와 무관하게, 직접 고른 조건으로 비교해 보세요.</p></div><button className="button-secondary gap-2 self-start"><Icon name="info" size={17} /> 정렬 기준 안내</button></div><div className="card mt-8 flex flex-col gap-3 p-4 sm:flex-row"><label className="flex flex-1 items-center gap-3 rounded-xl bg-paper px-4"><Icon name="search" size={19} /><span className="sr-only">변호사 검색</span><input className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted" placeholder="지역, 취급분야로 검색" /></label><button className="button-secondary min-h-11">지역 전체 <Icon name="chevron" size={16} /></button><button className="button-secondary min-h-11">취급분야 <Icon name="chevron" size={16} /></button></div><div className="mt-8 flex items-center justify-between"><p className="text-sm text-muted"><strong className="text-navy">12명</strong>의 변호사</p><span className="text-xs text-muted">중립 순환 정렬 · 광고 없음</span></div><div className="mt-4 grid gap-4 lg:grid-cols-3">{lawyers.map((lawyer) => <LawyerCard key={lawyer.name} lawyer={lawyer} />)}</div><div className="mt-8 rounded-2xl border border-[#f2dcb7] bg-cream p-5 text-sm leading-6 text-muted"><strong className="text-navy">변호사 선택 안내</strong><br />목록은 지역·취급분야 등 객관적 조건을 기준으로 중립적으로 보여드리는 목업입니다. 사건 내용에 따른 추천 순위나 결과 예측은 제공하지 않습니다.</div></AppShell> }
+function LawyerCard({ lawyer }: { lawyer: typeof lawyers[number] }) { return <article className="card flex flex-col p-5"><div className="flex items-start justify-between"><div className="flex items-center gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e8f6f4] font-bold text-teal">{lawyer.name.slice(0, 1)}</span><div><h2 className="font-bold text-navy">{lawyer.name} 변호사</h2><p className="mt-1 text-xs text-muted">{lawyer.office}</p></div></div><span className="rounded-full bg-paper px-2 py-1 text-[11px] text-muted">검증 완료</span></div><div className="mt-5 flex gap-2">{lawyer.tags.map((tag) => <span className="rounded-md bg-paper px-2 py-1 text-xs text-muted" key={tag}>{tag}</span>)}</div><p className="mt-5 min-h-12 text-sm leading-6 text-muted">{lawyer.intro}</p><div className="mt-5 flex items-center gap-2 text-xs text-muted"><span>{lawyer.region}</span><span className="h-1 w-1 rounded-full bg-line" /><span>{lawyer.fee}</span></div><Link className="button-secondary mt-5 min-h-11 w-full gap-2" to={`/lawyers/${lawyer.name}`}>프로필 보기 <Icon name="arrow" size={16} /></Link></article> }
+function LawyerProfile() { const { name } = useParams(); const lawyer = lawyers.find((item) => item.name === name) ?? lawyers[0]; return <AppShell><Link className="focus-ring inline-flex items-center gap-2 text-sm font-semibold text-muted" to="/lawyers"><Icon name="arrowLeft" size={17} /> 변호사 목록으로</Link><div className="card mt-8 p-6 sm:p-9"><div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between"><div className="flex items-center gap-4"><span className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#e8f6f4] text-2xl font-extrabold text-teal">{lawyer.name.slice(0, 1)}</span><div><span className="text-xs font-bold text-teal">검증 완료</span><h1 className="mt-1 text-2xl font-extrabold text-navy">{lawyer.name} 변호사</h1><p className="mt-1 text-sm text-muted">{lawyer.office}</p></div></div><button className="button-primary gap-2"><Icon name="clock" size={17} /> 상담 예약 문의</button></div><div className="mt-8 grid gap-4 border-t border-line pt-7 sm:grid-cols-3"><Stat label="활동 지역" value={lawyer.region} /><Stat label="상담 방식" value="방문 · 화상" /><Stat label="상담료" value={lawyer.fee.replace('상담 ', '')} /></div><div className="mt-8 grid gap-8 border-t border-line pt-7 md:grid-cols-2"><div><h2 className="font-bold text-navy">주요 취급 분야</h2><div className="mt-3 flex flex-wrap gap-2">{lawyer.tags.map((tag) => <span className="rounded-lg bg-paper px-3 py-2 text-sm text-muted" key={tag}>{tag}</span>)}</div></div><div><h2 className="font-bold text-navy">상담 안내</h2><p className="mt-3 text-sm leading-6 text-muted">{lawyer.intro} 상담 전 사건의 시간순서와 보유 자료를 정리해 오시면 도움이 됩니다.</p></div></div></div><div className="mt-6 flex items-start gap-3 rounded-2xl border border-[#f2dcb7] bg-cream p-5 text-xs leading-5 text-muted"><Icon name="info" size={17} /><span>상담 예약과 결제는 P0에서 연결되지 않은 목업입니다. 목록 정렬에는 개별 사건 분석 결과를 사용하지 않습니다.</span></div></AppShell> }
+
+function LawyerDashboard() { return <AppShell><p className="eyebrow">변호사 화면 · 목업</p><div className="mt-3 flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><h1 className="text-3xl font-extrabold tracking-[-0.06em] text-navy">상담 요청을 관리해요</h1><p className="mt-2 text-sm text-muted">자격 검증 완료 · 프로필 공개 중</p></div><button className="button-primary gap-2 self-start"><Icon name="user" size={17} /> 프로필 관리</button></div><div className="mt-8 grid gap-4 sm:grid-cols-3"><Stat label="새 상담 요청" value="4건" /><Stat label="이번 주 상담" value="3건" /><Stat label="평균 응답시간" value="2시간" /></div><section className="card mt-6 p-6"><div className="flex items-center justify-between"><h2 className="font-bold text-navy">최근 상담 요청</h2><span className="text-xs text-muted">객관적 접수 순서</span></div><div className="mt-4 divide-y divide-line">{['교통사고 과실비율 이견', '대인 접수 거부', '분심위 이후 절차'].map((title, i) => <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between" key={title}><div><p className="font-semibold text-navy">{title}</p><p className="mt-1 text-xs text-muted">상담 희망 · {i + 1}시간 전</p></div><button className="button-secondary min-h-10 px-4 text-sm">요청 확인</button></div>)}</div></section></AppShell> }
+function AdminDashboard() { return <AppShell><p className="eyebrow">운영 관리자 화면 · 목업</p><h1 className="mt-3 text-3xl font-extrabold tracking-[-0.06em] text-navy">서비스 운영 현황</h1><p className="mt-2 text-sm text-muted">콘텐츠와 품질을 안전하게 관리해요.</p><div className="mt-8 grid gap-4 sm:grid-cols-3"><Stat label="가이드 완료율" value="68%" /><Stat label="검토 대기 변호사" value="2명" /><Stat label="신고·문의" value="3건" /></div><div className="mt-6 grid gap-5 lg:grid-cols-2"><section className="card p-6"><h2 className="font-bold text-navy">검토가 필요한 항목</h2><div className="mt-4 space-y-3"><AdminRow title="변호사 자격 검증 요청" status="2건 대기" /><AdminRow title="법률 출처 갱신 확인" status="이번 주" /><AdminRow title="개인정보 삭제 요청" status="없음" /></div></section><section className="card p-6"><h2 className="font-bold text-navy">콘텐츠 관리</h2><p className="mt-3 text-sm leading-6 text-muted">무료 가이드와 템플릿을 규칙 기반으로 수정하고, AI 응답의 출처와 버전을 점검합니다.</p><button className="button-secondary mt-5 min-h-11">가이드 편집 화면</button></section></div></AppShell> }
+function AdminRow({ title, status }: { title: string; status: string }) { return <div className="flex items-center justify-between rounded-xl bg-paper p-4"><span className="text-sm font-semibold text-navy">{title}</span><span className="text-xs text-muted">{status}</span></div> }
+
+function NotFound() { return <Page><main className="container-page flex min-h-[60vh] flex-col items-center justify-center text-center"><p className="eyebrow">페이지를 찾을 수 없어요</p><h1 className="mt-4 text-3xl font-extrabold text-navy">다시 한 번 확인해 주세요.</h1><Link className="button-primary mt-7" to="/">홈으로 돌아가기</Link></main></Page> }
+
+export default function App() { return <Routes><Route element={<Home />} path="/" /><Route element={<Wizard />} path="/guide/insurance-dispute" /><Route element={<Checklist />} path="/guide/insurance-dispute/checklist" /><Route element={<Login />} path="/login" /><Route element={<Dashboard />} path="/app" /><Route element={<Report />} path="/app/report" /><Route element={<Lawyers />} path="/lawyers" /><Route element={<LawyerProfile />} path="/lawyers/:name" /><Route element={<LawyerDashboard />} path="/lawyer/dashboard" /><Route element={<AdminDashboard />} path="/admin/dashboard" /><Route element={<NotFound />} path="*" /></Routes> }

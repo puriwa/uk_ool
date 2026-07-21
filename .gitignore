@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+dist/
+build/
+out/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Test and coverage output
+coverage/
+playwright-report/
+test-results/
+
+# Local editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+*.tsbuildinfo
+
+# TypeScript build output for Vite config
+apps/web/vite.config.js
+apps/web/vite.config.d.ts
+
+# Uploaded or generated case material must never be committed
+uploads/
+private-data/
+case-files/
